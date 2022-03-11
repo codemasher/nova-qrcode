@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>SVG QR Code Generator</title>
+	<style>
+		body{
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 20px;
+			line-height: 1.4em;
+			color: #000;
+		}
+
+		a{
+			text-decoration: none;
+		}
+
+		#qrcode-settings{
+			width: 600px;
+			margin: 1em auto;
+			text-align: center;
+		}
+
+		input, textarea, select{
+			box-sizing: border-box;
+			font-family: Consolas, Courier, monospace;
+			font-size: 75%;
+			line-height: 1.25em;
+			border: 1px solid #aaa;
+			width: 50%;
+		}
+
+		input[type='checkbox']{
+			width: auto;
+		}
+
+		fieldset{
+			text-align: left;
+			border-radius: 0.5em;
+		}
+
+		fieldset > br{
+			clear: both;
+		}
+
+		legend{
+			font-weight: bold;
+		}
+
+		label{
+			width: 45%;
+			margin-right: 0.75em;
+			cursor: pointer;
+			float: left;
+			text-align: right;
+		}
+
+		button {
+			width: 50%;
+			font-size: 90%;
+			font-weight: bold;
+			padding: 0.5em;
+			margin: 1em 25%;
+			background-color: rgba(66, 141, 31, 0.15);
+			border: 2px solid rgba(66, 141, 31, 1.0);
+			border-radius: 0.5em;
+			transition: 0.4s;
+			cursor: pointer;
+		}
+
+		button:hover{
+			background-color: rgba(66, 141, 31, 0.3);
+		}
+
+		#qrcode-output{
+			text-align: center;
+		}
+
+		.helplink{
+			cursor: pointer;
+			font-size: 75%;
+			display: block;
+			text-align: right;
+			margin: 0 0.75em;
+		}
+
+		.help{
+			border: 2px solid rgba(31, 49, 141, 1.0);
+			background-color: rgba(31, 49, 141, 0.15);
+			font-size: 75%;
+			line-height: 1.4em;
+			margin: 0.5em 0.75em;
+			padding: 0.25em 0.75em;
+			border-radius: 0.5em;
+		}
+
+		.help > ul{
+			padding-left: 1.25em;
+		}
+
+	</style>
+</head>
+<body>
+<form id="qrcode-settings">
+	<h1>SVG QR Code Generator</h1>
+
+	<fieldset>
+		<legend>QR Code settings</legend>
+
+		<a class="helplink">halp!</a>
+		<div class="help" style="display: none;">
+			<ul>
+				<li>The <i>input string</i> is the content of the QR Code and can be anything from simple hyperlinks to <a href="https://en.wikipedia.org/wiki/QR_code#Joining_a_Wi%E2%80%91Fi_network" target="_blank">Wi-Fi credentials</a> and <a href="https://en.wikipedia.org/wiki/VCard" target="_blank">vCards</a></li>
+				<li>The <i>version (1-40)</i> determines the size and <a href="https://www.qrcode.com/en/about/version.html" target="_blank">data capacity</a> of the QR Code. If you run into a "code length overflow" error, try increasing the version number. This encoder uses ECC level "H" and operates in "8-bit binary" mode.</li>
+				<li>The "quiet zone" specifies an area around the QR Code with a minimum width of 4 modules to ensure readability. It should be in the same color as the light parts of the matrix.</li>
+				<li><i>Draw circular modules</i> renders each QR Code pixel (=module) as a filled disc with the given radius instead of a square. Additionally the finder and alignment patterns can be rendered as circles, too.</li>
+				<li><i>Connecting the SVG paths</i> eases coloring with gradients and avoids <a href="https://github.com/chillerlan/php-qrcode/issues/57#issuecomment-986917973" target="_blank">weird display glitches</a> under certain conditions. By default, a path element for each functional pattern will be created.</li>
+			</ul>
+		</div>
+
+		<label for="inputstring">Input string</label>
+		<textarea name="inputstring" id="inputstring" autocomplete="off" spellcheck="false" placeholder="QR Code content" required="required" maxlength="1272"></textarea>
+		<br/>
+
+		<label for="version">Version</label>
+		<input id="version" name="version" class="options" type="number" min="1" max="40" value="5" placeholder="version" required="required"/>
+		<br/>
+
+		<label for="quietzone">Add quiet zone</label>
+		<input id="quietzone" name="quietzone" class="options" type="checkbox" checked="checked"/>
+		<br/>
+
+		<label for="circularmodules">Draw circular modules</label>
+		<input id="circularmodules" name="circularmodules" class="options" type="checkbox" checked="checked"/>
+		<br/>
+
+		<label for="circleradius">Circular module radius</label>
+		<input id="circleradius" name="circleradius" class="options" type="number" min="0.2" max="0.75" step="0.05" value="0.45" placeholder="radius"/>
+		<br/>
+
+		<label for="squarefinder">Square finder pattern</label>
+		<input id="squarefinder" name="squarefinder" class="options" type="checkbox" checked="checked"/>
+		<br/>
+
+		<label for="squarealignment">Square alignment pattern</label>
+		<input id="squarealignment" name="squarealignment" class="options" type="checkbox" checked="checked"/>
+		<br/>
+
+		<label for="connectpaths">Connect SVG paths</label>
+		<input id="connectpaths" name="connectpaths" class="options" type="checkbox" checked="checked"/>
+		<br/>
+
+	</fieldset>
+
+	<fieldset>
+		<legend>Logo settings</legend>
+
+		<a class="helplink">halp!</a>
+		<div class="help" style="display: none;">
+			<p>
+				If a logo is selected, a space with the given scale (percentage of the total QR Code size) will be cleared and the logo fitted in.
+				Clearing the logo space can be skipped which will result in the logo just being slapped over the QR Code.
+			</p>
+			<p>
+				Since logos are not part of the specification and instead they're just abusing the error correction capacity (30% in ECC mode "H"),
+				you need to make sure that the code remains readable.
+			</p>
+			<p>
+				The logos in the list are just a tiny selection from <a href="https://simpleicons.org/" target="_blank">Simple Icons</a> - just ping me if you're missing something.
+				Alternatively, you can just replace the logo code by yourself by editing the SVG source.
+			</p>
+		</div>
+
+		<label for="logo">Logo</label>
+		<select id="logo" name="logo">
+			<option selected="selected"></option>
+			<option value="discord">Discord</option>
+			<option value="facebook">Facebook</option>
+			<option value="github">GitHub</option>
+			<option value="instagram">Instagram</option>
+			<option value="kofi">Ko-fi</option>
+			<option value="lastdotfm">Last.fm</option>
+			<option value="mastodon">Mastodon</option>
+			<option value="onlyfans">OnlyFans</option>
+			<option value="patreon">Patreon</option>
+			<option value="paypal">PayPal</option>
+			<option value="spotify">Spotify</option>
+			<option value="twitch">Twitch</option>
+			<option value="twitter">Twitter</option>
+			<option value="venmo">Venmo</option>
+			<option value="youtube">YouTube</option>
+		</select>
+		<br/>
+
+		<label for="logoscale">Scale %</label>
+		<input id="logoscale" name="logoscale" class="options" type="number" step="0.25" min="5" max="30" value="25" placeholder="logo scale"/>
+		<br/>
+
+		<label for="clearlogospace">Clear logo space</label>
+		<input id="clearlogospace" name="clearlogospace" class="options" type="checkbox" checked="checked"/>
+		<br/>
+	</fieldset>
+
+	<fieldset>
+		<legend>Colors</legend>
+
+		<a class="helplink">halp!</a>
+		<div class="help" style="display: none;">
+			<p>
+				The color settings for the individual parts of the QR Code. These settings are not concrete as you can easily edit the SVG source and change them in
+				<a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Element/defs" target="_blank">the "defs" section</a>, for example to add a <a href="https://raw.githubusercontent.com/chillerlan/php-qrcode/main/.github/images/example_svg_logo.svg" target="_blank">gradient</a>.
+				<br/>If the <i>transparent</i> option is set, the "light" parts of the QR matrix will be omitted from the output.
+			</p>
+			<p>
+				Please note that while it is possible to invert the colors for the dark and light parts it's not recommended as not all readers are able to handle inverted colors.
+			</p>
+		</div>
+
+		<label for="qrcode_dark">QR Code dark</label>
+		<input type="text" id="qrcode_dark" name="qrcode_dark" class="jscolor options" value="000000" autocomplete="off" spellcheck="false" minlength="6" maxlength="7" onclick="this.select();"/>
+		<br/>
+
+		<label for="qrcode_light">QR Code light</label>
+		<input type="text" id="qrcode_light" name="qrcode_light" class="jscolor options" value="eaeaea" autocomplete="off" spellcheck="false" minlength="6" maxlength="7" onclick="this.select();"/>
+		<br/>
+
+		<label for="qrcode_logo">Logo</label>
+		<input type="text" id="qrcode_logo" name="qrcode_logo" class="jscolor options" value="000000" autocomplete="off" spellcheck="false" minlength="6" maxlength="7" onclick="this.select();"/>
+		<br/>
+
+		<label for="imagetransparent">Transparent</label>
+		<input id="imagetransparent" name="imagetransparent" class="options" type="checkbox"/>
+		<br/>
+
+	</fieldset>
+
+	<fieldset>
+		<legend>Output</legend>
+		<button type="submit">Generate QR Code</button>
+
+		<div id="qrcode-output"></div>
+	</fieldset>
+
+	<fieldset>
+		<legend>Info</legend>
+		<p>
+			The output is a <a href="https://en.wikipedia.org/wiki/Scalable_Vector_Graphics" target="_blank">Scalable Vector Graphic</a> which you can easily edit with your
+			<a href="https://notepad-plus-plus.org/" target="_blank">preferred</a> <a href="https://code.visualstudio.com/" target="_blank">text</a> <a href="https://www.gnu.org/software/emacs/" target="_blank">editor</a>
+			or open it in <a href="https://inkscape.org/" target="_blank">Inkscape</a> to modify and convert it to a format of your choice.
+		</p>
+		<p>
+			The code for this generator is available <a href="https://github.com/codemasher/nova-qrcode" target="_blank">over here on GitHub</a> where you can help to make it prettier,
+			the QR Code is generated with <a href="https://github.com/chillerlan/php-qrcode" target="_blank">php-qrcode</a>
+			and the logo icons are from <a href="https://simpleicons.org/" target="_blank">Simple Icons</a>.
+		</p>
+		<p>
+			If you find this tool useful, feel free to <a href="https://twitter.com/codemasher" target="_blank">say hi</a> or
+			<a href="https://ko-fi.com/codemasher" target="_blank">tip me</a> if you can.
+		</p>
+	</fieldset>
+
+	<fieldset>
+		<legend>Disclaimer</legend>
+		<p>
+			No data is stored, no cookies are set.<br/>Absolutely no guarantee, use at your own risk.
+		</p>
+	</fieldset>
+
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prototype/1.7.3/prototype.min.js" integrity="sha512-C4LuwXQtQOF1iTRy3zwClYLsLgFLlG8nCV5dCxDjPcWsyFelQXzi3efHRjptsOzbHwwnXC3ZU+sWUh1gmxaTBA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.4.7/jscolor.min.js" integrity="sha512-IothZg8hzI8wCu0lFlUntJvMr7bb7DqYq4KVhtFbAs71uFb2QmIsvHDsT7Waxb81+TgnFqMs+ALk88Of+l3I0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+	jscolor.presets.default = {
+		width          : 240,
+		height         : 135,
+		sliderSize     : 20,
+		format         : 'hex',
+		previewPosition: 'right',
+		palette        : [],
+		hash           : false,
+		uppercase      : false,
+		shadow         : false,
+	};
+
+	$$('.helplink').invoke('observe', 'click', e => e.target.next('.help').toggle());
+
+	((form, output, url) => {
+
+		$(form).observe('submit', ev => {
+			Event.stop(ev);
+
+			// prototype Ajax.Request >>> fetch() - don't @ me
+			new Ajax.Request(url, {
+				method         : 'post',
+				contentType    : 'application/json;charset=utf-8',
+				parameters     : JSON.stringify(ev.target.serialize(true)),
+				onUninitialized: $(output).update(),
+				onLoading      : $(output).update('<img src="https://c.tenor.com/UlmrCRTMewkAAAAC/luxie-luxiegames.gif" alt="weenie!">'),
+				onFailure      : response => $(output).update(response.responseJSON.error),
+				onSuccess      : response => {
+					let qrcode = new Element('img', {src: response.responseJSON.qrcode, alt: 'qrcode'});
+					// https://davidwalsh.name/javascript-download
+					let dl = new Element('a', {id: 'download', href: '#'}).update('download .svg').observe('click', evt => {
+						Event.stop(evt);
+						let data = atob(response.responseJSON.qrcode.split(',')[1]);
+						new Element('a', {
+							download: 'qrcode.svg',
+							href    : URL.createObjectURL(new Blob([data], {type: 'image/svg+xml'})),
+						}).click();
+					});
+
+					$(output).update(dl).insert(qrcode);
+				},
+			});
+
+		});
+
+	})('qrcode-settings', 'qrcode-output', './generator.php');
+</script>
+</body>
+</html>

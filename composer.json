@@ -1,0 +1,23 @@
+{
+	"name": "codemasher/nova-qrcode",
+	"description": "A QR code generator. PHP 7.4+",
+	"homepage": "https://github.com/codemasher/nova-qrcode",
+	"license": "MIT",
+	"minimum-stability": "stable",
+	"require": {
+		"php": "^7.4 || ^8.0",
+		"ext-json": "*",
+		"chillerlan/php-qrcode": "dev-main#b6777fd58b2275ff108c75abc9fa9767b180a16b",
+		"simple-icons/simple-icons": "^6.12"
+	},
+	"autoload": {
+		"psr-4": {
+			"codemasher\\NovaQRCode\\": "src/"
+		}
+	},
+	"config": {
+		"lock": false,
+		"sort-packages": true,
+		"platform-check": true
+	}
+}
