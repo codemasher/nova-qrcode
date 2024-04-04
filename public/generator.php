@@ -33,25 +33,27 @@ try{
 	$data = validate_input($in);
 
 	$options_arr = [
-		'version'             => $data->version,
-		'eccLevel'            => EccLevel::H,
-		'outputType'          => QRCode::OUTPUT_CUSTOM,
-		'outputInterface'     => NovaQRCodeSVG::class,
-		'imageBase64'         => true,
-		'svgAddXmlHeader'     => false,
-		'markupDark'          => '',
-		'markupLight'         => '',
-		'addQuietzone'        => $data->quietzone,
-		'drawCircularModules' => $data->circularmodules,
-		'circleRadius'        => $data->circleradius,
-		'keepAsSquare'        => $data->keepassquare,
-		'svgConnectPaths'     => $data->connectpaths,
-		'svgLogo'             => $data->logo,
-		'clearLogoSpace'      => $data->clearlogospace,
-		'svgLogoScale'        => $data->logoscale / 100,
-		'svgLogoCssClass'     => 'logo',
+		'version'              => $data->version,
+		'eccLevel'             => EccLevel::H,
+		'outputType'           => QRCode::OUTPUT_CUSTOM,
+		'outputInterface'      => NovaQRCodeSVG::class,
+		'imageBase64'          => true,
+		'svgAddXmlHeader'      => false,
+		'svgUseFillAttributes' => false,
+		'markupDark'           => '',
+		'markupLight'          => '',
+		'addQuietzone'         => $data->quietzone,
+		'drawLightModules'     => $data->drawlightmodules,
+		'drawCircularModules'  => $data->circularmodules,
+		'circleRadius'         => $data->circleradius,
+		'keepAsSquare'         => $data->keepassquare,
+		'svgConnectPaths'      => $data->connectpaths,
+		'svgLogo'              => $data->logo,
+		'clearLogoSpace'       => $data->clearlogospace,
+		'svgLogoScale'         => $data->logoscale / 100,
+		'svgLogoCssClass'      => 'logo',
 		// https://developer.mozilla.org/en-US/docs/Web/SVG/Element/linearGradient
-		'svgDefs'             => '
+		'svgDefs'              => '
 	<style><![CDATA[
 		.dark{fill: #'.$data->qrcode_dark.';}
 		.light{fill: #'.$data->qrcode_light.';}
@@ -108,7 +110,7 @@ function validate_input(string $in):stdClass{
 	// logo
 	$out->logo = null;
 
-	if(isset($in->logo) && !empty($in->logo)){
+	if(!empty($in->logo)){
 		$file = strtolower(trim($in->logo));
 
 		if(preg_match('/^[a-z]+$/', $file)){
@@ -130,7 +132,7 @@ function validate_input(string $in):stdClass{
 	}
 
 	// booleans
-	foreach(['circularmodules', 'clearlogospace', 'connectpaths', 'quietzone'] as $v){
+	foreach(['circularmodules', 'clearlogospace', 'connectpaths', 'drawlightmodules', 'quietzone'] as $v){
 		$out->{$v} = isset($in->{$v});
 	}
 

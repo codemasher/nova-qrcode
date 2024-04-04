@@ -209,11 +209,11 @@
 		<div class="help" style="display: none;">
 			<p>
 				The color settings for the individual parts of the QR Code. These settings are not concrete as you can easily edit the SVG source and change them in
-				<a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Element/defs" target="_blank">the "defs" section</a>, for example to add a <a href="https://raw.githubusercontent.com/chillerlan/php-qrcode/main/.github/images/example_svg_logo.svg" target="_blank">gradient</a>.
-				<br/>If the <i>transparent</i> option is set, the "light" parts of the QR matrix will be omitted from the output.
+				<a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Element/defs" target="_blank">the "defs" section</a>, for example to add a <a href="https://github.com/chillerlan/php-qrcode/blob/main/.github/images/example.svg" target="_blank">gradient</a>.
+				<br/>If the <i>draw light modules</i> option is unchecked, the "light" parts of the QR matrix will be omitted from the output.
 			</p>
 			<p>
-				Please note that while it is possible to invert the colors for the dark and light parts it's not recommended as not all readers are able to handle inverted colors.
+				Please note that while it is possible to invert the colors for the dark and light parts, it's not recommended as not all readers are able to handle inverted colors.
 			</p>
 		</div>
 
@@ -229,6 +229,8 @@
 		<input type="text" id="qrcode_logo" name="qrcode_logo" class="jscolor options" value="000000" autocomplete="off" spellcheck="false" minlength="6" maxlength="7" onclick="this.select();"/>
 		<br/>
 
+		<label for="drawlightmodules">Draw light modules</label>
+		<input id="drawlightmodules" name="drawlightmodules" class="options" type="checkbox"/>
 		<br/>
 
 	</fieldset>
