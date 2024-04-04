@@ -10,7 +10,7 @@
 
 namespace codemasher\NovaQRCode;
 
-use chillerlan\QRCode\Output\QRMarkup;
+use chillerlan\QRCode\Output\QRMarkupSVG;
 use function ceil;
 use function file_get_contents;
 use function sprintf;
@@ -18,48 +18,35 @@ use function sprintf;
 /**
  * Create SVG QR Codes with embedded logos (that are also SVG)
  */
-class NovaQRCodeSVG extends QRMarkup{
+class NovaQRCodeSVG extends QRMarkupSVG{
 
 	/**
-	 * SVG output
-	 *
-	 * @see https://github.com/codemasher/php-qrcode/pull/5
-	 * @see https://developer.mozilla.org/en-US/docs/Web/SVG/Element/svg
-	 * @see https://www.sarasoueidan.com/demos/interactive-svg-coordinate-system/
+	 * @inheritDoc
 	 */
-	protected function svg(bool $saveToFile):string{
+	protected function paths():string{
 
-		$logo = '';
-
-		if($this->options->svgLogo !== null){
+		if($this->options->clearLogoSpace){
 			$size = (int)ceil($this->moduleCount * $this->options->svgLogoScale);
 
-			if($this->options->clearLogoSpace){
-				// we're calling QRMatrix::setLogoSpace() manually, so QROptions::$addLogoSpace has no effect here
-				$this->matrix->setLogoSpace($size, $size);
-			}
-
-			$logo = $this->getLogo();
+			$this->matrix->setLogoSpace($size, $size);
 		}
 
-		$svg = $this->svgHeader();
+		$svg = parent::paths();
 
-		if(!empty($this->options->svgDefs)){
-			$svg .= sprintf('<defs>%1$s%2$s</defs>%2$s', $this->options->svgDefs, $this->options->eol);
+		if($this->options->svgLogo !== null){
+
+			$svg .= $this->getLogo();
+
 		}
-
-		$svg .= $this->svgPaths();
-		$svg .= $logo;
-
-		// close svg
-		$svg .= sprintf('%1$s</svg>%1$s', $this->options->eol);
-
-		// transform to data URI only when not saving to file
-		if(!$saveToFile && $this->options->imageBase64){
-			$svg = $this->base64encode($svg, 'image/svg+xml');
-		}
-
 		return $svg;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function path(string $path, int $M_TYPE):string{
+		// omit the "fill" and "opacity" attributes on the path element
+		return sprintf('<path class="%s" d="%s"/>', $this->getCssClass($M_TYPE), $path);
 	}
 
 	/**
@@ -79,6 +66,5 @@ class NovaQRCodeSVG extends QRMarkup{
 			$this->options->eol
 		);
 	}
-
 
 }

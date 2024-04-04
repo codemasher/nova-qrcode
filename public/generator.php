@@ -14,7 +14,12 @@ use chillerlan\QRCode\QRCode;
 use codemasher\NovaQRCode\NovaQRCodeOptions;
 use codemasher\NovaQRCode\NovaQRCodeSVG;
 
-require_once __DIR__.'/../vendor/autoload.php';
+const VENDOR_DIR = __DIR__.'/../vendor';
+
+require_once VENDOR_DIR.'/autoload.php';
+// the library is not on composer, so we need to include these manually
+require_once __DIR__.'/../src/NovaQRCodeOptions.php';
+require_once __DIR__.'/../src/NovaQRCodeSVG.php';
 
 sleep(1);
 
@@ -33,10 +38,10 @@ try{
 		'outputType'          => QRCode::OUTPUT_CUSTOM,
 		'outputInterface'     => NovaQRCodeSVG::class,
 		'imageBase64'         => true,
+		'svgAddXmlHeader'     => false,
 		'markupDark'          => '',
 		'markupLight'         => '',
 		'addQuietzone'        => $data->quietzone,
-		'imageTransparent'    => $data->imagetransparent,
 		'drawCircularModules' => $data->circularmodules,
 		'circleRadius'        => $data->circleradius,
 		'keepAsSquare'        => $data->keepassquare,
@@ -108,7 +113,7 @@ function validate_input(string $in):stdClass{
 
 		if(preg_match('/^[a-z]+$/', $file)){
 			// @todo
-			$out->logo = sprintf(__DIR__.'/../vendor/simple-icons/simple-icons/icons/%s.svg', $file);
+			$out->logo = sprintf(VENDOR_DIR.'/simple-icons/simple-icons/icons/%s.svg', $file);
 		}
 	}
 
@@ -125,7 +130,7 @@ function validate_input(string $in):stdClass{
 	}
 
 	// booleans
-	foreach(['circularmodules', 'clearlogospace', 'connectpaths', 'imagetransparent', 'quietzone'] as $v){
+	foreach(['circularmodules', 'clearlogospace', 'connectpaths', 'quietzone'] as $v){
 		$out->{$v} = isset($in->{$v});
 	}
 

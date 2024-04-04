@@ -7,8 +7,8 @@
 	"require": {
 		"php": "^7.4 || ^8.0",
 		"ext-json": "*",
-		"chillerlan/php-qrcode": "dev-main#b6777fd58b2275ff108c75abc9fa9767b180a16b",
-		"simple-icons/simple-icons": "^6.12"
+		"chillerlan/php-qrcode": "^5.0",
+		"simple-icons/simple-icons": "^11"
 	},
 	"autoload": {
 		"psr-4": {
